@@ -1,0 +1,45 @@
+---
+layout: default
+title: Read Mapping Exercises
+---
+
+<span class="contenthead">Read Mapping Exercises</span><br><hr>
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 1: Read Mapping Exercise</h3>
+<hr>
+<p>
+Download data: <a href="mapping.tgz">mapping.tgz</a>
+</p>
+
+
+<h4>Getting Started</h4>
+<p>
+BWA is a widely used tool for mapping individual reads to a reference genome, and SAMTools 
+is a widely used program for scanning the read alignments to find & report variations
+or measure coverage. Download and install BWA (http://bio-bwa.sourceforge.net) 
+and SAMTools (http://samtools.sourceforge.net/) to learn how to run the tools on a 
+small genome with simulated reads. Both run on any Unix or Mac system (possibly Windows under Cygwin). 
+</p>
+
+The basic steps are: 
+<ol>
+<li>'bwa index' to index the reference genome (only needs to be done once per genome).
+<li>'bwa aln' to align the reads
+<li>'bwa sampe' to report the alignments.
+</ol>
+
+After aligning, run SAMTools to find variations. The basic steps are 
+<ol>
+<li>'samtools faidx' to index the reference genome 
+<li>'samtools view' to load the alignments 
+<li>'samtools index' to index the BAM file 
+<li>'samtools mpileup' to find variations.
+<li>'samtools view' is a useful command to inspect how the reads align to the genome at a given position
+</ol>
+
+<p>
+Here is a more detailed description on how to use mpileup: <a href="http://samtools.sourceforge.net/mpileup.shtml">http://samtools.sourceforge.net/mpileup.shtml</a>
+</p>
+

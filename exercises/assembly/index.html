@@ -1,0 +1,128 @@
+---
+layout: default
+title: Genome Assembly Exercises
+---
+
+<!-- ########################################################################################### -->
+
+<span class="contenthead">Genome Assembly Exercises</span><br><hr>
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 1: Whole Genome Alignment</h3>
+<hr>
+<p>
+Immediately after completing an assembly, the newly assembled sequence will often be compared
+to either a prior assembly or to the genome of a related species. This computation is called whole
+genome alignment. One of the leading tools for whole genome alignment is nucmer, distributed
+with MUMmer and available on sourceforge at <a href="http://mummer.sf.net">http://mummer.sf.net</a>.
+</p>
+
+<p>In this exercise you will compare 2 genome files available from: <a href="data/wga.challenge1.tgz">wga.challenge1.tgz</a><p>
+
+For this exercise the most important tools are:
+<ol>
+  <li> nucmer: align the two sequences</li>
+  <li> delta-filter: filter out repetitive alignments</li>
+  <li> show-coords: display the alignment information</li>
+  <li> mummerplot: draw a dotplot of the alignments</li>
+  <li> dnadiff: summarize differences between the sequences</li>
+</ol>
+
+<h4>Question 1: How many insertions, deletions, and rearrangements are there between the two sequences?</h4>
+<i>Hint: check out mummerplot and dnadiff</i>
+
+<br><br><br>
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 2: Assembly with Allpaths</h3>
+<hr>
+<p>
+You will now assemble a microbe using one of the leading algorithms <a
+href="http://www.pnas.org/content/108/4/1513">ALLPATHS-LG</a>.  For the
+exercise, we will use sequencing data from Staphylococcus aureus distributed as
+part of the <a href="http://gage.cbcb.umd.edu">Genome Assembly Gold-Stardard
+  Evaluations</a> (GAGE) project. You will then compare your new assembly to the reference
+genome to evaluate accuracy.
+</p>
+
+Steps:
+<li> Download and install <a href="http://www.broadinstitute.org/software/allpaths-lg/blog/?page_id=12">ALLPATHS</a>
+<li> Download the S. aureus sequencing <a href="http://gage.cbcb.umd.edu/data/Staphylococcus_aureus/Data.original.tgz">reads</a>
+<li> Assemble the reads using allpaths:
+<ol>
+  <li> Prepare the in_libs.csv and in_groups.csv files (see the allpaths manual)
+  <li> Prepare the data using PrepareAllpathsInputs.pl
+  <li> Launch ALLPATHS using RunAllPathsLG
+</ol>
+<li> Align the contigs to the reference genome (included with the read data) with nucmer
+<li> Summarize the quality of the assembly (also see assembly.report)
+
+<h4>Question 2: How many insertions, deletions, and rearrangements are there between the assembled sequence and the reference?</h4>
+
+<br><br>
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 3: Assembly with SOAPdenovo</h3>
+<hr>
+<p>
+In this exercise, you'll assemble the same genome using another leading algorithm 
+<a href="http://genome.cshlp.org/content/20/2/265.abstract">SOAPdenovo</a>. We will try the
+same assembly using the raw reads and then again with the reads corrected using the error
+correction pipeline <a href="http://genomebiology.com/2010/11/11/R116/abstract">Quake</a> 
+to evaluate if error correction is useful. Note ALLPATHS has an integrated error correction pipeline.
+</p>
+
+Raw Read Assembly:
+<li> Download and install <a href="http://soap.genomics.org.cn/soapdenovo.html">SOAPdenovo</a>.
+<li> Download the S. aureus sequencing <a href="http://gage.cbcb.umd.edu/data/Staphylococcus_aureus/Data.original.tgz">reads</a> (same as above)
+<li> Prepare the soap config file (see soapdenovo manual)
+<li> Run SOAPdenovo using k=45
+<li> align the scaffolds to the reference genome (included with the read data) with nucmer
+<li> summarize the quality of the assembly (also see the SOAPdenovo log file)
+
+<h4>Question 3: How many insertions, deletions, and rearrangements are there between the assembled sequence and the reference?</h4>
+
+
+Error Corrected Assembly:
+<li> Download and install <a href="https://github.com/davek44/error_correction/zipball/master">Quake</a> (directly from the source repository)
+<li> Prepare a file with the fragment pairs (pairs.list)
+<li> Error correct the fragment reads using quake.py -f pairs.list -k 17
+<li> Prepare a new soap config file using the error corrected fragments
+<li> Run SOAPdenovo using k=45
+<li> align the scaffolds to the reference genome (included with the read data) with nucmer
+<li> summarize the quality of the assembly (also see the SOAPdenovo log file)
+
+<h4>Question 4: How many insertions, deletions, and rearrangements are there between the assembled sequence and the reference?</h4>
+<h4>Question 5: How useful was the error correction?</h4>
+<h4>Question 6: How does the SOAPdenovo assembly compare the ALLPATHS assembly?</h4>
+
+<br><br>
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 4: Assembly with Celera Assembler</h3>
+<hr>
+<p>
+The last exercise is to assemble the reads using the 
+<a href="http://sourceforge.net/apps/mediawiki/wgs-assembler/index.php?title=Main_Page">Celera Assembler</a>.
+You should error correct the fragment reads with quake before assembly.
+</p>
+
+
+Celera assembly:
+<li> Download and install <a href="http://sourceforge.net/projects/wgs-assembler/files/wgs-assembler/wgs-7.0/">Celera Assembler</a>
+<li> Error correct the fragment reads with quake (see above)
+<li> Convert the fragment pairs to FRG format using fastqToCA
+<li> Convert the jumping pairs to FRG format using fastqToCA
+<li> Assemble the reads using runCA fragment.frg jump.frg
+<li> align the scaffolds to the reference genome (included with the read data) with nucmer
+<li> summarize the quality of the assembly (also see the SOAPdenovo log file)
+
+<h4>Question 7: How many insertions, deletions, and rearrangements are there between the assembled sequence and the reference?</h4>
+<h4>Question 8: Which of the 3 assemblers worked the best?</h4>
+
+<br><br>
+

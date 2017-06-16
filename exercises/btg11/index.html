@@ -1,0 +1,52 @@
+---
+layout: default
+title: Beyond the Genome 2011
+---
+<!-- ########################################################################################### -->
+
+<span class="contenthead">2011 Beyond the Genome Informatics Challenge: Viral Insertion</span><br><hr>
+<h3>Michael Schatz, Ben Langmead, and James Taylor</h3>
+
+<p>
+The goal of this challenge is to identify a viral sequence insertion into a human cancer exome. 
+To keep it tractable, we will only use genes on chromosome 22, and only exons > 500bp long.
+The subject line should be: BTG2011 human_gene virus_name.
+The body should contain the steps you took to identify the gene and virus. If
+at all possible, please include the exact commands used.
+
+Winners will be selected by first correct answer (name of gene, name of virus) and for reproducibility.
+
+You must be registered and present at Beyond the Genome 2011 to win.
+The judges decisions are final. Rules are subject to change at anytime. 
+</p>
+
+<p>
+Download the data here: <a href="btg11.tgz">btg11.tgz</a>
+</p>
+
+<pre>
+  chr22.fa is the hg19 version of chr22
+  read1.fq and read2.fq are the paired end reads from the exome
+       (100bp reads, 300bp fragment size, 20x coverage)
+</pre>
+
+<br><br>
+
+<h3>Hints</h3>
+<hr>
+
+<p>Try assembling the reads (with velvet or SOAPdenovo) and aligning the contigs to the reference genome (with MUMmer or Bowtie2). 
+The insertion will be a segment that doesnt align. You can then BLAST that contig at NCBI to see if it hits any known viruses.
+</p>
+
+<br><br> <br><br> <br><br> <br><br> <br><br> <br><br> <br><br> <br><br> <br><br> <br><br> <br><br> <br><br> <br><br> <br><br> 
+
+<span class="contenthead">Solution Guide</span><br><hr>
+
+<p>
+ Script for generating the challenge: <a href="btg11.sh">btg11.sh</a>
+</p>
+
+<br><br>
+
+<!--#include virtual="/template/footer.shtml" -->

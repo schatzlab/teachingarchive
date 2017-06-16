@@ -1,0 +1,189 @@
+---
+layout: default
+title: Teaching - 2011
+---
+
+<a name="2011"><table width="100%" bgcolor="#e6e6e6"> <tr><th style="font-variant:small-caps; font-size:12pt; color:#003399;" align="left">2011</th></tr></table></a><br>
+
+<a name="2011QB"><h3>Quantitative Biology &amp; Bioinformatics - 2011</h3></a> <hr>
+
+<a href="/teaching/2011/2011.Lecture0.Schatzlab Research Projects.pdf">Lecture 0: Schatzlab Research Projects</a><br>
+<p>
+Introduction to DNA sequence analysis, with an emphasis on large scale analysis
+using cloud computing (parallel computing).  Includes a description of
+embarassingly parallel, loosely coupled, and tightly coupled problems, and
+techniques for addressing each type using many computers.
+</p>
+
+<a href="/teaching/2011/2011.Lecture1.Programming 101.pdf">Lecture 1: Computational Analysis Primer</a><br>
+<p>
+Introduction to unix and unix scripting. Introduction to analysis of DNA replication.
+</p>
+
+<a href="/teaching/2011/2011.Lecture2.Exact Matching.pdf">Lecture 2: Exact Matching and Fundamental Topics in CS</a><br>
+<p>
+In this class we explored the problem of finding exact occurrences of a query
+sequence in a large genome or database of sequences.  Under this theme, we
+started by analyzing the brute force approach introducing the concepts of
+algorithm, complexity analysis, E-values, and programming in Matlab. Next we
+discussed suffix arrays as an index for accelerating the search, including
+analyzing the performance of binary search and its implementation in Matlab. We
+also considered two traditional algorithms for sorting (Selection Sort versus
+QuickSort) and their relative performance. Next we considered the question of if
+it is possible to sort items in linear time (Bucket Sort), to segue towards
+describing suffix trees and their applications. This also introduced the notion
+of trees and their properties, and the fundamental depth-first-search algorithm.
+Finally we considered hash tables and hash functions as way to transform very
+large, intractable search domains into tractable ranges, with applications
+towards developing a seed-and-extend search algorithm.
+</p>
+
+<a href="/teaching/2011/2011.Lecture3.Sequence Alignment.pdf">Lecture 3: Sequence Alignment &amp; Applications</a></br>
+<p>
+The theme of this class was the problem of finding approximate occurrences of a
+short query sequence in a large genome or database of sequences. We first
+defined the problem by considering various metrics of an approximate occurrence:
+hamming distance, edit distance, and similarity score including BLOSSUM matrices
+and affine gap penalties. We then considered different methods for computing
+inexact alignments including dynamic programming for computing global &amp;
+local alignments and seed-and-extend algorithms. In the second half of the class 
+we discussed the sequence alignment algorithms BLAST as a hash-table based 
+seed-and-extend algorithm for finding statistically significant sequence homology.
+</p>
+
+<br>
+
+
+<a href="/teaching/2011/2011.Lecture4.Alignment and Assembly.pdf">Lecture 4: Alignment and Assembly</a><br>
+<p>
+In the first half of the class we covered two important applications of alignment:
+(1) MUMmer as a suffix-tree based seed-and-extend algorithm for whole genome alignment, introducing the
+concepts of dot-plot and large scale genomic variations; and (3) Bowtie as a
+Burrows-Wheeler short read mapping algorithm using a depth-first-search of the
+implicit suffix array. We also discussed subsequent algorithms for interpreting
+short read mapping results to detect polymorphisms, including the SOAPsnp model
+of SNP detection, the SAMTools model of small indels, the RDexplorer model of
+copy number variation detection, and the Hydra algorithm for detecting
+large-scale indels and rearrangements.
+<p>
+
+<p>
+The theme of the second half of the class class was graphs and methods for graph
+analysis. The emphasis was on genome assembly but included a discussion of other
+biological networks including PPI networks, regulation networks, neuron
+interaction networks, and cell cycle graphs.  We first discussed fundamental
+properties of graphs, such as nodes, edges, degrees, shortest paths, connected
+components, diameters, small world networks, and scale free networks. We then
+examined in detail algorithms for searching graphs and contrasted
+depth-first-search with breadth-first-search by considering LIFO stacks and FIFO
+queues. We next considered approaches for finding minimum cost paths through
+weighed graphs (traveling salesman problem), including exhaustive search, greedy
+algorithms, and branch-and-bound. This lead to a discussion of the intractable
+nature of NP-complete problems, and reviewed several important examples (vertex
+cover, clique finding, knapsack problem, Hamiltonian cycle) and
+shortest-common-superstring as a model for genome assembly.  We concluded with a
+review of DNA sequencing protocols, and the Lander-Waterman model of shotgun
+sequencing with respect to coverage and connectivity. We then contrasted the
+overlap-layout-consensus model of genome assembly, as exemplified by the Celera
+Assembler, with the de Bruijn genome approach, as exemplified by SOAPdenovo, and
+discussed the results of several recent large scale genome assembly projects.
+</p>
+
+<br>
+
+
+<a href="/teaching/2011/2011.Lecture5.Gene Finding.pdf">Lecture 5: Gene Finding and HMMs</a><br>
+<p>
+In this class we examined methods for ab initio gene prediction. We began with a
+discussion of detecting open reading frames (ORFs) in prokaryotes and then using
+increasingly sophisticated probabilistic models for distinguishing between true
+genes and random ORFs: Fixed Order Markov models, Interpolated Markov Models as
+implemented in Glimmer 1, and Interpolated Context Models as implemented in
+Glimmer 2. We concluded with a discussion of using dynamic programming to select
+the highest scoring set of non-overlapping ORFs and reverse scoring to
+accurately determine 5’ start codons, as implemented in Glimmer 3.
+</p>
+
+<p>
+Next we reviewed the structure of eukaryotic genes, and how ORF graphs represent
+all possible gene models in a genome. We then examined Hidden Markov Models
+(HMMs) in detail as a probabilistic model for scoring potential parses of the
+ORF graph, focusing on the classic HMM problems of evaluation (including a
+concrete example using the Forward algorithm with a trellis), decoding
+(including a concrete example using the Viterbi algorithm), and learning
+(including an overview of EM). We then considered how HMMs could be used for
+eukaryotic gene finding. We then discussed how Generalized HMMs (GHMMs) overcome
+the limitations of HMMs, and presented the GHMM used by the leading method
+GlimmerHMM. We then considered the weight matrices and features GlimmerHMM uses
+for evaluating potential start, splice, and stop sites.
+</p>
+
+<br><br>
+
+<!-- ########################################################################################### -->
+
+<a name="2011FIG"><h3>Frontiers in Genomics, National University of Mexico - 2011</h3></a> <hr>
+
+<a href="/teaching/2011/2011.Frontiers-Answering the demands of digitial genomics.pdf">Answering the demands of digital genomics</a><br>
+<p>
+This lecture reviews the past, present, and future of genomics especially in light of the increasing
+computational demands required for analyzing large volumes of biological sensor data.
+</p>
+
+<br>
+
+<a href="/teaching/2011/2011.Frontiers-UNAM.Computational Genomics.pdf">Computational Genomics</a><br>
+<p>
+This lecture consists of 3 main topics: (1) sequencing alignment, focusing on suffix arrays and 
+the burrows-wheeler transform; (2) genome assembly, reviewing the theoretical and practical aspects
+of creating a good assembly; and (3) cloud computing as a platform for large scale sequence analysis.
+</p>
+
+
+<br><br>
+
+
+
+<!-- ########################################################################################### -->
+
+<a name="2011URP"><h3>Undergraduate Research Program in Bioinformatics - 2011</h3></a> <hr>
+
+<a href="/teaching/2011/2011.URP.CS Fundamentals.pdf">Lecture 2: Sequence Alignment and Computational Thinking</a><br>
+<p>
+In this class we explored the problem of finding exact occurrences of a query
+sequence in a large genome or database of sequences.  Under this theme, we
+started by analyzing the brute force approach introducing the concepts of
+algorithm, complexity analysis, and E-values.  Next we discussed suffix arrays
+as an index for accelerating the search, including analyzing the performance of
+binary search. We also considered two traditional algorithms for sorting
+(Selection Sort versus QuickSort) and their relative performance.  In the second
+half of the class we discussed finding approximate occurrences of a short query
+sequence in a large genome or database of sequences. We first defined the
+problem by considering various metrics of an approximate occurrence such as
+hamming distance, or edit distance.  We then considered different methods for
+computing inexact alignments including brute force global &amp; local
+alignments, and seed-and-extend algorithms. Finally we discussed Bowtie as a
+Burrows-Wheeler transform based short read mapping algorithm for discovering
+alignments to reference genome.
+</p>
+
+<br>
+
+<a href="/teaching/2011/2011.URP.Graphs and Genomes.pdf">Lecture 3: Graphs and Genomes</a><br>
+<p>
+The theme of this class was graphs and methods for graph analysis. The emphasis
+was on genome assembly but included a discussion of other biological networks
+including PPI networks, regulation networks, neuron interaction networks, and
+cell cycle graphs. In the class, we considered fundamental properties of graphs,
+such as nodes, edges, degrees, and shortest paths. We then examined in detail
+algorithms for searching graphs with a  with breadth-first-search, and then
+approaches for finding minimum cost paths through weighed graphs (traveling
+salesman problem), including exhaustive search, greedy algorithms, and
+branch-and-bound. This lead to a discussion of the intractable nature of
+NP-complete problems, and reviewed several important examples (vertex cover,
+clique finding, knapsack problem, Hamiltonian cycle).
+</p>
+
+<br>
+<br>
+

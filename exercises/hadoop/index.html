@@ -1,0 +1,284 @@
+---
+layout: default
+title: Hadoop Exercises
+---
+
+
+<span class="contenthead">Hadoop Exercises</span><br><hr>
+
+<p>
+I recommend you first review the Hadoop developer tutorial at yahoo:
+<a href="http://developer.yahoo.com/hadoop/tutorial/index.html">http://developer.yahoo.com/hadoop/tutorial/index.html</a><br>
+</p>
+
+<p>
+I also recommend you download the Cloudera CDH4 virtual machine:
+<a href="https://ccp.cloudera.com/display/SUPPORT/CDH+Downloads#CDHDownloads-CDH4PackagesandDownloads">https://ccp.cloudera.com/display/SUPPORT/CDH+Downloads#CDHDownloads-CDH4PackagesandDownloads</a><br>
+</p>
+
+<br><br>
+
+
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 1: Hadoop Pi</h3>
+<hr>
+<p>
+The first test with hadoop will be to run an existing hadoop program, to make
+sure you can launch the program, monitor progress, and get/put files on the
+HDFS. The simplest program computes pi in parallel on 5 nodes with 5 samples:
+</p>
+
+<pre>
+$ hadoop jar /usr/lib/hadoop/hadoop-examples.jar pi 5 5
+</pre>
+
+<h4>Question 1: What is the value of pi that it computes?</h4>
+
+<br><br>
+
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 2: Hadoop Word Count</h3>
+<hr>
+
+<p>
+The next program to test is the hadoop word count program. This example reads
+text files and counts how often words occur. The input is text files and the
+output is text files, each line of which contains a word and the count of how
+often it occured, separated by a tab.
+</p>
+
+<p>
+Each mapper takes a line as input and breaks it into words. It then emits a
+key/value pair of the word and 1. Each reducer sums the counts for each word and
+emits a single key/value with the word and sum. As an optimization, the reducer
+is also used as a combiner on the map outputs. This reduces the amount of data
+sent across the network by combining each word into a single record.
+</p>
+
+<p>
+Before you can run the example, you'll have to copy some data into the
+distributed filesystem (HDFS). Here we will create an input directory, and copy
+in the complete works of Shakespeare and the bible (a standard large corpus for
+text mining)
+</p>
+
+<p>
+The datafile is also avalable at - make sure to gunzip after downloading:
+<a href="data/bible+shakes.nopunc.gz">bible+shakes.nopunc.gz</a>
+</p>
+
+<pre>
+$ hadoop fs -mkdir /user/USERNAME/wordcount
+$ hadoop fs -mkdir /user/USERNAME/wordcount/input
+$ hadoop fs -put /bluearc/data/schatz/data/textmining/bible+shakes.nopunc /user/mschatz/wordcount/input
+</pre>
+
+To run the example, the command syntax is
+<pre>
+$ hadoop jar /usr/lib/hadoop/hadoop-examples.jar wordcount \
+             /user/USERNAME/wordcount/input \
+             /user/USERNAME/wordcount/output
+</pre>
+
+
+After this completes, download the results to your local directory like this:
+<pre>
+$ hadoop fs -get /user/USERNAME/wordcount/output output
+</pre>
+
+<h4>Question 2: What are the top 10 most frequently used words in the corpus?</h4>
+<i> Hint: Use the unix commands sort and head to scan the output file</i>
+
+
+<br><br><br>
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 3: Hadoop Kmer Counting</h3>
+<hr>
+<p>
+The next exercise will be to implement a kmer counter using hadoop. Conceptually
+this is very similar to the wordcount program, but since there are no spaces in
+the human genome, we will count overlapping kmers instead of discrete words.
+</p>
+
+The idea is if the genome is:
+<pre>
+&gt;chr1
+ACACACAGT
+</pre>
+
+And we are counting 3-mers, your map function will output
+<pre>
+ACA   1
+CAC   1
+ACA   1
+CAC   1
+ACA   1
+CAG   1
+AGT   1
+</pre>
+
+The shuffle function will sort them so the same key comes right after each other
+<pre>
+ACA   1
+ACA   1
+ACA   1
+CAC   1
+CAC   1
+CAG   1
+AGT   1
+</pre>
+
+And your reducer will output:
+<pre>
+ACA   3
+CAC   2
+CAG   1
+AGT   1
+</pre>
+
+
+<p>
+You can implement this in Java, using the WordCount program as an example, or
+you can use Hadoop Streaming to implement it in any language you would like.
+</p>
+
+<p>
+The Hadoop Streaming documentation describes how to use it:<br>
+<a href="http://hadoop.apache.org/common/docs/r0.20.2/streaming.html">http://hadoop.apache.org/common/docs/r0.20.2/streaming.html</a>
+</p>
+
+<p>
+And here is a nice tutorial using Python:<br>
+<a href="http://www.michael-noll.com/tutorials/writing-an-hadoop-mapreduce-program-in-python/">
+http://www.michael-noll.com/tutorials/writing-an-hadoop-mapreduce-program-in-python/</a>
+</p>
+
+<p>
+The genome file is available here: <a href="data/ecoli.fa.gz">ecoli.fa.gz</a>
+</p>
+
+
+<h4>Question 3: What are the top 10 most frequently occurring 9-mers in E coli?</h4>
+
+<p>
+And once this is working, you can test the entire human genome available here (hg19 means human genome, build 19):
+/bluearc/data/schatz/data/genomes/hg19/hg19.fa
+</p>
+
+<h4>Question 4: What are the top 10 most frequently occurring 9-mers in HG19?</h4>
+
+
+<br><br>
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 4: Hadoop Kmer Frequency Map</h3>
+<hr>
+<p>
+The next step is to invert the kmer-frequency table so that the kmer counts are
+shown at each position along the genome. This is needed so that we can overlay
+the repeats in the genome with respect to genes and other features.
+</p>
+
+For example, from the example above
+<pre>
+&gt;chr1
+ACACACAGT
+</pre>
+
+We want to construct this table (chromosome, offset, kmer-count)
+<pre>
+chr1   1   3
+chr1   2   2
+chr1   3   3
+chr1   4   2
+chr1   5   3
+chr1   6   1
+chr1   7   1
+</pre>
+
+<p>
+This cannot be done in a single MapReduce cycle - we have to first count kmer
+occurences and then resort them by position. The easiest approach is to modify
+your kmer counter to record the positions of each kmer, and then add a second
+MapReduce step that inverts the index and uses the sort capabilities of Hadoop
+to build the sorted map:
+</p>
+
+Input:
+<pre>
+&gt;chr1
+ACACACAGT
+</pre>
+
+Map Output 1 (mer, offset)
+<pre>
+ACA   1
+CAC   2
+ACA   3
+CAC   4
+ACA   5
+CAG   6
+AGT   7
+</pre>
+
+
+Output1 (cnt, offset-list):
+<pre>
+3   chr1:1,chr1:3,chr1:5
+2   chr1:2,chr1:4
+1   chr1:6
+1   chr1:7
+</pre>
+
+Map2 output (chromosome, offset, cnt):
+<pre>
+chr1   1   3
+chr1   3   3
+chr1   5   3
+chr1   2   2
+chr1   4   2
+chr1   6   1
+chr1   7   1
+</pre>
+
+Shuffle and sort the final output (chromosome, offset, cnt):
+<pre>
+chr1   1   3
+chr1   2   2
+chr1   3   3
+chr1   4   2
+chr1   5   3
+chr1   6   1
+chr1   7   1
+</pre>
+
+Once this is done, it is straightforward to scan the catalog to find unique
+regions. Here there is just one small unique region chr1:[6,7] but there could
+be many.
+
+<h4> Question 5: What are the top 10 longest unique regions in E coli using k=21?</h4>
+
+<i>
+Hint: Check out the hadoop 
+<a href="http://hadoop.apache.org/common/docs/r0.20.0/streaming.html#A+Useful+Partitioner+Class+%28secondary+sort%2C+the+-partitioner+org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner+option%29">secondary sort</a>.
+</i>
+
+<h4>Question 6: What are the top 10 longest unique regions in the whole human genome using k=21?</h4>
+
+<p>
+Since the map for the whole human genome will be so large (3 billion positions x
+~20bytes = 60 GB), we will probably want to scan it in parallel too, but then we
+have to be very careful regions that span boundaries between map jobs. You may
+want to also investigate the hadoop compression options since the runtime will
+be proportional to the amount of data to shuffle.
+</p>
+
+
+<!--#include virtual="/template/footer.shtml" -->

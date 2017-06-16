@@ -1,0 +1,150 @@
+---
+layout: default
+title: RNA-seq Exercises
+---
+
+<span class="contenthead">RNA-seq Exercises</span><br><hr>
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 1: Visualizing Expression</h3>
+<hr>
+<p>
+Dr. Jones is interested to identify which of her favorite 100 genes in E.coli
+are differentially expressed over 10 timepoints.  See if you can't help her out!
+In this first exercise, the gene expression matrix will be provided for you, in
+later exercises you will learn how to construct it from the sequence data.
+</p>
+
+<p>
+The file <a href="rnaseq.1.expression/expression.txt">expression.txt</a> has a gene expression matrix for
+100 genes (gene_1 through gene_100) over 10 timepoints (exp_1 through exp_10).
+Most genes have a stable background expression level, but some special genes
+show increased expression over the timecourse and some show decreased
+expression. See if you can characterize the background expression level, and
+identify the special genes.
+</p>
+
+<p>
+This dataset is small enough and simple enough that you could probably answer
+this by inspecting the file by hand. Nevertheless, the point is to give you a
+warm up exercise working with data in a scripting language like Python, Perl or R
+to make plots, fit values to a distribution, etc.
+</p>
+
+<p>
+You can download the Python development environment Canopy from:
+<a href="https://www.enthought.com/products/canopy/">Enthought</a>
+</p>
+
+<p>
+You can download R for Mac from:
+<a href="http://cran.cnr.berkeley.edu/bin/macos/">http://cran.cnr.berkeley.edu/bin/macosx/</a>
+</p>
+
+<p>
+Hint: google for "python matplotlib", "python read file", OR "R read.table", "R lines", "R heatmap", "R hist", etc
+</p>
+
+<br>
+<br>
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 2: Reads to Expression</h3>
+<hr>
+<p>
+Dr. Jones is interested to identify which of her favorite 100 genes in E.coli 
+are differentially expressed over 10 timepoints.  See if you can't help her out!
+Unlike the first exercise which started from the expression matrix, this time
+you will learn how to align the RNA-sequencing (RNAseq) reads to the reference
+and compute the coverage levels of the genes.
+</p>
+
+<h4>Inputs</h4>
+<p>
+I posted a tarball with the data for the challenge on my website:
+<a href="rnaseq.2.pileup/rnaseq.2.pileup.tgz">rnaseq.2.pileup.tgz</a>
+<p>
+
+<ol>
+  <li> ecoli.fa is the reference genome</li>
+  <li>refgenes.ptt has a list of the 100 genes of interest</li>
+  <li> tX.1.fq, tX.2.fq are the paired-end RNAseq reads collected from timepoint X for 1<=X<=10. </li>
+</ol>
+
+<p>
+The reads are 50bp long from 200bp fragments with errors at a constant 2% error rate.
+</p>
+
+
+<h4>Outputs</h4>
+<ol>
+  <li> Construct an expression matrix with the average depth of coverage across each gene</li>
+  <li>Plot of expression matrix (parallel coordinates, heatmap, etc)</li>
+  <li>List of neutral, increasing, decreasing, and other "interesting"  genes. </li>
+</ol>
+
+
+
+<h4>Getting Started</h4>
+<p>
+BWA is a widely used tool for mapping individual reads to a reference genome, and SAMTools 
+is a widely used program for scanning the read alignments to find & report variations
+or measure coverage. Download and install BWA (http://bio-bwa.sourceforge.net) 
+and SAMTools (http://samtools.sourceforge.net/) to learn how to run the tools on a 
+small genome with simulated reads. Both run on any Unix or Mac system (possibly Windows under Cygwin). 
+</p>
+
+The basic steps are: 
+<ol>
+<li>'bwa index' to index the reference genome (only needs to be done once per genome).
+<li>'bwa aln' to align the reads
+<li>'bwa sampe' to report the alignments.
+</ol>
+
+After aligning, run SAMTools to find variations. The basic steps are 
+<ol>
+<li>'samtools faidx' to index the reference genome 
+<li>'samtools view' to load the alignments 
+<li>'samtools index' to index the BAM file 
+<li>'samtools mpileup' to find variations.
+<li>'samtools view' is a useful command to inspect how the reads align to the genome at a given position
+</ol>
+
+<p>
+Here is a more detailed description on how to use mpileup: <a href="http://samtools.sourceforge.net/mpileup.shtml">http://samtools.sourceforge.net/mpileup.shtml</a>
+</p>
+
+
+<h4>Project Sketch</h4>
+<pre>
+Index genome (bwa index)
+For each time point
+  Align reads to genome (bwa aln, bwa sampe)
+  Convert and sort alignments (samtools view, samtools sort)
+  Report coverage at each position samtools (samtools depth)
+  Compute average depth of each exon (your own code)
+Merge depths into expression matrix (your own code)
+Display heatmap / timeseries, identify special genes (your own R code)
+</pre>
+
+<br><br>
+
+<!-- ########################################################################################### -->
+
+<h3>Exercise 3: Tuxedo Tools</h3>
+<hr>
+<p>
+The leading RNA-seq analysis pipeline uses a collection of tools:
+<a href="http://bowtie-bio.sf.net/">Bowtie</a>, <a href="http://tophat.cbcb.umd.edu">TopHat</a>,
+<a href="http://cufflinks.cbcb.umd.edu">Cufflinks</a> (collectively called the tuxedo tools).
+</p>
+
+<p>
+In this exercise, you will analyze the same read data as in Exercise 2, but this time you will
+use Bowtie/TopHat/Cufflinks for the analysis instead of your own pipeline. Once you have
+completed the run, correlate the coefficient of your depth of coverage pipeline and the
+Cufflinks RPKM values. Plot these values, and draw the linear regression curve
+</p>
+

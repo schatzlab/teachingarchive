@@ -1,0 +1,383 @@
+---
+layout: default
+title: PacBio-based Genome Assembly
+---
+
+<!-- ########################################################################################### -->
+
+<span class="contenthead">PacBio Genome Assembly</span><br><hr>
+
+<!-- ########################################################################################### -->
+
+<p>
+New sequencing instruments from Oxford Nanopore and Pacific Biosciences can
+sequence much longer fragments of DNA than any other sequencing technology (over
+2000bp compared to 100-500bp), but at a much higher error rate (typically 15%
+error). The long read length makes the instruments very attractive for de novo
+assembly of complex genomes, but the high error rate prevents traditional
+approaches from being used. Design and implement an algorithm for assembling
+these reads de novo, such as using spaced seeds for nding overlaps or an error
+correction pipeline that can be applied directly to the reads. Requires strong
+algorithm and programming skills.
+</p>
+
+<p>
+The three major phases that need to be address are (1) Overlapping, (2)
+Unitigging, and (3) Consensus generation. All three phases will need to be
+reconsidered to take into account the high error rate and long read length. The
+overall error rate on recent data is approximately 15% with 11% insertions, 3%
+deletions, 1% substitutions, although the errors are randomly distributed with
+across the read with a uniform probability.  The reads also do not have uniform
+read length, but follow an approximately exponential distribution (mean = 3290,
+max=24,405 on recent data). In your analysis you should assume the reference
+genome has been oversampled to 30-fold sequence coverage.
+</p>
+
+<br>
+
+<p align=center>
+<a href="pbalign.png"><img height=324 width=230 src="pbalign.png"></a> 
+&nbsp; &nbsp; &nbsp; &nbsp;
+<a href="pblen.png"><img width=390 height=317 src="pblen.png"></a> <br>
+
+(Left) Alignment of a real pacbio read against the reference genome. <br>
+(Right) Distribution of read lengths on recent data 
+</p>
+
+<br>
+
+<h4>Related Information</h4>
+<ul>
+<li><a href="http://www.pacificbiosciences.com/products/smrt-technology/">PacBio Sequencing</a> - Background on PacBio's single molecule real time sequencing platform</li>
+<li><a href="http://www.nanoporetech.com/">Oxford Nanopore</a> - Overview of nanopore sequencing (details are not available on read characteristics)</a>
+<li><a href="http://www.nejm.org/doi/full/10.1056/NEJMoa1106920">Sequencing E. coli</a> - (Rasko, 11) Paper on sequencing E. coli with PacBio, describes sequencing characteristics, etc</li>
+<li><a href="http://www.nature.com/nbt/journal/v30/n7/full/nbt.2280.html">Hybrid Error Correction</a> - (Koren, 12) Describes how to use short high quality reads to polish errors</li>
+<li><a href="http://www.biomedcentral.com/1471-2105/13/238/abstract">BLASR Paper</a> - (Chaisson, 12) Describes the algorithms for PacBio's aligner along with an analysis of errors</li>
+<li><a href="http://www.sciencemag.org/content/287/5461/2196.full">Celera Assembler</a> - (Myers, 00) Describes the Celera Assembler as applied to the fruit fly genome</li>
+</ul>
+
+<h4>Resources</h4>
+<ul>
+<li><a href="http://www.biomedcentral.com/1471-2105/8/64">Minimus</a> - (Sommer, 07) A simple assembler for benchmarking</li>
+<li><a href="http://www.cbcb.umd.edu/software/PBcR/#data">PacBio reads</a> - PacBio long reads from Lambda phage, Ecoli, Yeast, Parrot</li>
+<li><a href="http://en.wikipedia.org/wiki/FASTQ_format">FASTQ Format</a> - Describes how the fastq read format with sequences and quality values</li>
+<li><a href="https://github.com/PacificBiosciences/blasr/tree/master/simulator">Alchemy</a> - PacBio's read simulator.</li>
+<li><a href="http://www.smrtcommunity.com/Share/Code?id=a1q70000000GrYWAA0">pbh5tools</a> Convert PacBio reads in h5 format into fastq format</li>
+<li><a href="http://code.google.com/p/pbsim/">pbsim</a> - Another simulator of PacBio reads</li>
+</ul>
+
+
+<h4>Additional Resources (Added 11/7/2012)</h4>
+<ul>
+<li><a href="http://sourceforge.net/projects/readsim/">Simple Read Simulatorr</a> - Easy-to-use read simulator</li>
+<li><a href="http://bioinformatics.oxfordjournals.org/content/early/2012/11/04/bioinformatics.bts649.abstract">PacBio Read Simulator Paper</a> - (Ono, 12) Paper on PacBio Read simulator</li>
+<li><a href="#minimus">Using Minimus</a> - Short guide to simulating reads, overlapping, unitigging, and generating a consensus</li>
+</ul>
+
+
+<br><br>
+
+
+
+<!-- ########################################################################################### -->
+
+<a name="minimus"><h3>Using Minimus</h3></a>
+<hr>
+
+<h4>1. Download and install AMOS (which includes Minimus) </h4>
+
+<pre>
+  mkdir ~/proj
+  cd ~/proj
+  
+  git clone git://amos.git.sourceforge.net/gitroot/amos/amos
+  cd amos
+  ./bootstrap
+  ./configure --prefix=`pwd`
+  make
+  make install
+</pre>
+
+<h4>2. Download and install the simple read simulator</h4>
+<p> Download from here: <a href="http://sourceforge.net/projects/readsim/files/latest/download">http://sourceforge.net/projects/readsim/files/latest/download</a>.</p>
+
+<pre>
+  cd ~/proj
+  tar xzvf readsim-1.0.tar.gz
+</pre>
+
+<h4>3. Prepare a small test genome and small read set using a portion of the E. coli genome.</h4>
+<p>See the <a href="http://sourceforge.net/p/readsim/wiki/manual/">wiki</a> for more details.</p>
+
+<pre>
+  cd ~/proj
+  mkdir small
+  head -500 readsim-1.0/example/ecoli/NC_000913.fna &gt; small/ref.fa
+  ./readsim-1.0/src/readsim.py sim fa \
+      --ref small/ref.fa \
+      --pre small/reads.2k.10x \
+      --tech pacbio_ec \
+      --read_mu 2000 --cov_mu 10
+</pre>
+
+
+<h4>4. Assemble the reads with minimus</h4>
+
+<pre>
+  cd ~/proj/small
+
+  ~/proj/amos/bin/toAmos -s reads.2k.10k.fasta -o reads.afg
+  ~/proj/amos/bin/minimus reads
+
+  ## Dump overlaps
+  ~/proj/amos/bin/bank-report -b reads.bnk/ OVL &gt; overlaps.afg
+
+
+  ## Dump unitig layous
+  ~/proj/amos/bin/bank-report -b reads.bnk/ LAY &gt; layouts.afg
+
+  ## Dump the alignment of reads in the unitigs
+  ~/proj/amos/bin/analyzeSNPs -T -a -b -i reads.bnk/ &gt; reads.align
+</pre>
+
+
+
+<h4>5. Examine the overlaps</h4>
+
+<p>The overlaps.afg file is a text file that contains the overlap information in an XML-like format that looks like this:<p>
+<pre>
+{OVL
+adj:N
+rds:1,2
+scr:0
+ahg:139
+bhg:1685
+}
+</pre>
+
+<p>This means that reads 1 and 2 overlap in "normal" orientation, meaning the end of read 1 overlaps the beginning of read 2.
+The read ids are internal numeric ids assigned by AMOS, the file reads.bnk/RED.0.map has the mapping from read number to 
+the read name in the original fasta file. The "ahg" (ahang) is the number of bases of the first read in the overlap (read 1) 
+that occur before the overlap and the "bhg" (bhang) are the number of
+bases of the second read (read 2) that extend past the overlap: </p>
+
+<pre>
+1:  =============================================&gt;        &lt;-- 1685bp --&gt;
+2:   &lt;-- 139bp --&gt;  =========================================================&gt;
+</pre>
+
+<p> Because the reads may be from either strand of the DNA, the other valid orientation 
+is "I" for innie: 
+
+<pre>
+1:  =============================================&gt;        &lt;-- 1685bp --&gt;
+2:   &lt;-- 139bp --&gt;  &lt;=========================================================
+</pre>
+
+<p> Note the ahand and/or bhang may take negative values if the second read overlaps the beginning
+of the first read (negative ahang), or the first read extends past the second read (negative bhang)</p>
+
+<pre>
+A:   &lt;-- -ahang --&gt;  =========================================================&gt;
+B:  =============================================&gt;        &lt;-- -bhang --&gt;
+</pre>
+
+
+
+<h4>6. Examine the unitig layouts</h4>
+
+<p>The layouts.afg file is a text file that contains the overlap information in an XML-like format that looks like this:<p>
+
+<pre>
+{LAY
+{TLE
+clr:0,338
+off:0
+src:1
+}
+{TLE
+clr:0,1883
+off:139
+src:2
+}
+{TLE
+clr:0,3250
+off:396
+src:3
+}
+{TLE
+clr:0,604
+off:450
+src:4
+}
+</pre>
+
+<p> The first line "{LAY" marks the beginning of a unitig, and the "{TLE" lines mark the start of a read in a unitig. The
+first read in the unitig is read number 1 (using reads.bnk/RED.0.map to map from number to name) and the approximate offset
+of the read in the unitig is base 0 (the first read is always at base 0). The usable bases of the read are 0 through 338. The
+second read in the unitig is read number 2, with offset 139, and usable bases 0 through 1883. If the read is in reverse
+complement orientation, then the clr values will go from hi to low instead.
+</p>
+
+<pre>
+ 
+read 1: off: 0   len: 338     =====================&gt;
+read 2: off: 139 len: 1883            =======================================&gt;
+read 3: off: 396 len: 3250                    ===========================================================&gt;
+read 4: off: 450 len: 604                          =================&gt;
+...
+</pre>
+
+
+
+<h4>7. Examine the read alignment</h4>
+
+<p>The reads.align file is a text file that contains the alignment of the reads in the unitigs that looks like this:</p>
+
+<pre>
+1 709 706 G 120 GGGG 30:30:30:30 1:2:3:4
+1 710 707 C 120 CCCC 30:30:30:30 1:2:3:4
+1 711 708 G 120 GGGG 30:30:30:30 1:2:3:4
+1 712 709 C 60 CCTC 30:30:30:30 1:2:3:4
+1 713 710 G 120 GGGG 30:30:30:30 1:2:3:4
+1 714 711 C 120 CCCC 30:30:30:30 1:2:3:4
+1 715 712 G 120 GGGG 30:30:30:30 1:2:3:4
+1 716 713 G 120 GGGG 30:30:30:30 1:2:3:4
+1 717 714 T 120 TTTT 30:30:30:30 1:2:3:4
+1 718 715 C 120 CCCC 30:30:30:30 1:2:3:4
+1 719 716 A 120 AAAA 30:30:30:30 1:2:3:4
+1 720 716 - 60 A--- 30:30:30:30 1:2:3:4
+1 721 717 C 120 CCCC 30:30:30:30 1:2:3:4
+1 722 718 A 120 AAAA 30:30:30:30 1:2:3:4
+1 723 719 A 120 AAAA 30:30:30:30 1:2:3:4
+1 724 720 C 120 CCCC 30:30:30:30 1:2:3:4
+1 725 721 G 150 GGGGG 30:30:30:30:30 1:2:3:4:5
+1 726 722 T 150 TTTTT 30:30:30:30:30 1:2:3:4:5
+1 727 723 T 150 TTTTT 30:30:30:30:30 1:2:3:4:5
+1 728 724 A 150 AAAAA 30:30:30:30:30 1:2:3:4:5
+1 729 725 C 150 CCCCC 30:30:30:30:30 1:2:3:4:5
+1 730 726 T 150 TTTTT 30:30:30:30:30 1:2:3:4:5
+</pre>
+
+<p>The fields are (from the first line):</p>
+<pre>
+1            contig id 
+709          gapped contig position 
+706          contig position excluding gaps in the consensus
+G            consensus base
+120          consensus quality
+GGGG         the bases of the reads covering this position
+30:30:30:30  the quality values of the bases covering this position
+1:2:3:4      the read ids covering this position (use reads.bnk/RED.0.map to convert to read names)
+</pre>
+
+<p>Note the disagreement of bases at position 712, the gaps at 720, and the start of read 5 at 725. 
+If you just want the consensus sequence for the unitigs, you can look in reads.fasta</p>
+
+
+<br><br>
+<br><br>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ########################################################################################### -->
+
+<h3>Problem 1: Overlapping</h3>
+<hr>
+<p>
+The goal of this project is to design an algorithm that can rapidly compute
+overlaps with at least a specified overlap length and quality given a large
+collection of long high error reads (max read length=L) in the presence of high
+error rate . One could compute overlaps between all-pairs of
+long reads using a dynamic programming algorithm, but this would be extremely
+expensive O(n^2) read pairs, each requiring O(L^2) time to measure. Instead
+design a hashing/clustering scheme that can quickly identify pairs of reads that
+are likely to overlap and/or a parallelization scheme to compute overlaps on
+many cores in parallel. To get started, you can use the real and simulated
+PacBio data to compute overlaps between reads, comparing your results to
+those computed with BLASR.
+</p>
+
+<p align=center>
+<img src="overlap.png">
+</p>
+
+<h4>Resources</h4>
+<ul>
+<li><a href="http://www.biomedcentral.com/1471-2105/8/64">Minimus</a> - (Sommer, 07) A simple assembler for benchmarking</li>
+<li><a href="http://bioinformatics.oxfordjournals.org/content/20/18/3363.long">Minimizers</a> - (Roberts, 04) Space efficient read overlapping algorithm</li>
+<li><a href="http://www.cbcb.umd.edu/software/PBcR/#data">PacBio reads</a> - PacBio long reads from Lambda phage, Ecoli, Yeast, Parrot</li>
+<li><a href="http://en.wikipedia.org/wiki/FASTQ_format">FASTQ Format</a> - Describes how the fastq read format with sequences and quality values</li>
+<li><a href="https://github.com/PacificBiosciences/blasr">BLASR</a> - PacBio's aligner for long reads with high error rates.</li>
+<li><a href="https://github.com/PacificBiosciences/blasr/tree/master/simulator">Alchemy</a> - PacBio's read simulator.</li>
+<li><a href="http://code.google.com/p/pbsim/">pbsim</a> - Another simulator of PacBio reads</li>
+</ul>
+
+<br><br>
+
+<!-- ########################################################################################### -->
+
+<h3>Problem 2: Unitigging</h3>
+<hr>
+<p>
+The goal of this project is to simplify the overlap graph down to the
+non-redundant set of overlaps comprising the unitigs (aka string graph). This
+project should also explore the consequencies of high error rates, non-uniform
+read lengths, and low coverage found with real data. To get started, you can
+using Minimus to compute overlaps between long low error rate reads, and you can
+compare your output to the output from minimus.
+</p>
+
+<p align=center>
+<img src="unitigging.png">
+</p>
+
+<h4>Resources</h4>
+<ul>
+<li><a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.37.9658&rep=rep1&type=pdf">Unitigging Paper</a> - (Myers, 95) Describes how to simplifying the overlap graph to construct unitigs</li>
+<li><a href="http://bioinformatics.oxfordjournals.org/content/21/suppl_2/ii79.short">String Graph</a> - (Myers, 05) Refines the unitigging algorithm to compute in linear time</li>
+<li><a href="http://www.biomedcentral.com/1471-2105/8/64">Minimus</a> - (Sommer, 07) A fast, lightweight genome assembler</li>
+</ul>
+
+
+<br><br>
+
+<!-- ########################################################################################### -->
+
+<h3>Problem 3: Consensus</h3>
+<hr>
+<p>
+The goal of this project is given an approximate layout of reads which specifies the relative
+position of reads, compute their consensus sequence. The exact consensus can be computed
+using a dynammic programming algorithm, but is exponential in the number of reads. To get
+started you can use minimum to overlap and compute unitigs between long, low error reads,
+and try to replace the make-consensus module.
+</p>
+
+<p align=center>
+<img src="consensus.png">
+</p>
+
+<h4>Resources</h4>
+<ul>
+<li><a href="http://www.biomedcentral.com/1471-2105/8/64">Minimus</a> - (Sommer, 07) A fast, lightweight genome assembler</li>
+<li><a href="http://bioinformatics.oxfordjournals.org/content/25/9/1118.full">Consistency-based consensus</a> - (Rausch, 08) Accurately compute the consensus sequence</li>
+<li><a href="http://online.liebertpub.com/doi/abs/10.1089/cmb.1997.4.369">ReAligner</a> - (Myers 09) Refining DNA Sequence Multi-Alignments</li>
+</ul>
+
+
+<br><br>
+
+
+<!--#include virtual="/template/footer.shtml" -->
